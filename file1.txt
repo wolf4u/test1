@@ -1,1 +1,44 @@
-New File1
+# Nginx Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+
+---
+# LoadBalancer Service for Nginx on GCP
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+  namespace: default
+  annotations:
+    # GCP-specific annotations
+    cloud.google.com/load-balancer-type: "Internal"  # Makes it an internal LoadBalancer
+    networking.gke.io/vlan: "vlan-subnet-name"      # Specify your VPC subnet
+    # Optional: Reserve a specific internal IP
+    cloud.google.com/reserve-internal-ip: "10.128.0.100"
+spec:
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
+  externalTrafficPolicy: Local
