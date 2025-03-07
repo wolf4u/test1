@@ -1,1 +1,11 @@
-This is File 2
+kubectl apply -f nginx-gcp-deployment.yaml
+
+
+
+You might need to configure firewall rules separately in GCP Console or via gcloud:
+
+gcloud compute firewall-rules create allow-nginx \
+  --network=default \
+  --allow=tcp:80 \
+  --source-ranges=10.128.0.0/20 \
+  --target-tags=gke-cluster-node-tag
